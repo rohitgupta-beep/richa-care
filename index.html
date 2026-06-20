@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Richa Care">
+<meta name="theme-color" content="#FAF9F6">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Richa Care</title>
+<style>
+  :root{
+    --bg:#FAF9F6; --surface:#FFFFFF; --ink:#1A1A1A; --ink2:#6E6A62; --ink3:#9C978D;
+    --line:#ECEAE3; --line2:#E2DFD6;
+    --green:#2E7D32; --green-d:#1B5E20; --green-l:#E9F4EA; --ring:#26A269;
+    --amber:#B06D14; --amber-l:#FBF1DF;
+    --red:#C0362C; --red-l:#FBEAE8;
+    --med:#4F5BB3; --med-l:#ECEDFA;
+    --shadow:0 1px 2px rgba(40,38,32,.04),0 2px 8px rgba(40,38,32,.05);
+    --radius:18px; --radius-s:12px;
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--font); background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px 120px}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+  /* Header */
+  header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 78%,rgba(250,249,246,0));padding-top:14px}
+  .hgreet{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
+  .hgreet .hi{font-size:13px;color:var(--ink2);letter-spacing:.2px}
+  .hgreet .nm{font-size:26px;font-weight:700;letter-spacing:-.4px;line-height:1.05;margin-top:1px}
+  .hgreet .dt{font-size:12.5px;color:var(--ink3);text-align:right}
+  .modepill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--med);background:var(--med-l);padding:3px 9px;border-radius:99px;margin-top:5px}
+
+  /* Protein hero card */
+  .hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;display:flex;align-items:center;gap:18px;margin-bottom:10px}
+  .ring{position:relative;width:104px;height:104px;flex:none}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .big{font-size:25px;font-weight:700;letter-spacing:-.5px;line-height:1}
+  .ring .big small{font-size:13px;font-weight:600;color:var(--ink3)}
+  .ring .cap{font-size:10.5px;color:var(--ink3);margin-top:2px;letter-spacing:.2px}
+  .heroR{flex:1;min-width:0}
+  .heroR .lbl{font-size:12px;color:var(--ink2);font-weight:600;letter-spacing:.2px}
+  .heroR .sub{font-size:12px;color:var(--ink3);margin-top:2px}
+  .chipline{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:99px;border:1px solid var(--line2);color:var(--ink2);background:#fff}
+  .chip.ok{color:var(--green);border-color:#CFE6D0;background:var(--green-l)}
+  .chip.med{color:var(--med);border-color:#D9DCF5;background:var(--med-l)}
+  .chip .dot{width:7px;height:7px;border-radius:99px;background:currentColor;opacity:.85}
+
+  /* Day switcher */
+  .daynav{display:flex;align-items:center;justify-content:space-between;margin:14px 2px 10px}
+  .daynav .arw{width:34px;height:34px;border-radius:99px;border:1px solid var(--line2);background:#fff;display:grid;place-items:center;color:var(--ink2);font-size:17px;font-weight:600}
+  .daynav .arw:active{background:#f2f0ea}
+  .daynav .arw[disabled]{opacity:.35}
+  .daynav .lbl{font-size:14.5px;font-weight:700;letter-spacing:-.2px}
+  .daynav .lbl span{display:block;font-size:11px;font-weight:600;color:var(--ink3);text-align:center;margin-top:1px}
+  .preview-note{font-size:11.5px;color:var(--amber);background:var(--amber-l);border:1px solid #F0E0C2;border-radius:10px;padding:7px 11px;margin-bottom:12px;display:none}
+
+  /* Section heading */
+  .sechead{display:flex;align-items:center;gap:9px;margin:20px 2px 10px}
+  .sechead h2{font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--ink3);margin:0}
+  .sechead .ln{flex:1;height:1px;background:var(--line)}
+
+  /* Meal card */
+  .meal{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:11px;overflow:hidden;transition:border-color .2s}
+  .meal.done{border-color:#CFE6D0}
+  .meal .top{display:flex;align-items:center;gap:11px;padding:14px 16px 12px}
+  .meal .ic{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:19px;background:var(--green-l)}
+  .meal .ti{flex:1;min-width:0}
+  .meal .ti .mn{font-size:15.5px;font-weight:700;letter-spacing:-.2px}
+  .meal .ti .tm{font-size:12px;color:var(--ink3);margin-top:1px}
+  .status{font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;letter-spacing:.2px;white-space:nowrap}
+  .status.up{color:var(--ink3);background:#F3F1EB}
+  .status.due{color:var(--amber);background:var(--amber-l)}
+  .status.done{color:var(--green);background:var(--green-l)}
+  .items{padding:2px 16px 4px}
+  .item{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+  .items .item:first-child{border-top:none}
+  .cbx{width:24px;height:24px;border-radius:8px;border:2px solid var(--line2);flex:none;display:grid;place-items:center;background:#fff;transition:all .15s;color:#fff;font-size:14px}
+  .item.checked .cbx{background:var(--green);border-color:var(--green)}
+  .item .nm{flex:1;font-size:14.5px;transition:color .15s}
+  .item.checked .nm{color:var(--ink3);text-decoration:line-through;text-decoration-color:#C9C4B8}
+  .item .pg{font-size:12px;font-weight:600;color:var(--ink3);font-variant-numeric:tabular-nums}
+  .item.checked .pg{color:var(--green)}
+  .item.extra .nm{font-style:normal}
+  .item.extra .tag{font-size:10px;font-weight:700;color:var(--med);background:var(--med-l);padding:1px 6px;border-radius:5px;margin-left:7px;vertical-align:middle}
+
+  .mealfoot{display:flex;gap:8px;padding:11px 16px 14px;flex-wrap:wrap}
+  .btn{font-family:var(--font);font-size:13px;font-weight:600;border-radius:11px;padding:9px 13px;border:1px solid var(--line2);background:#fff;color:var(--ink);display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+  .btn:active{background:#f2f0ea}
+  .btn.g{border-color:#CFE6D0;color:var(--green);background:var(--green-l)}
+  .btn svg{width:16px;height:16px}
+  .photos{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 12px}
+  .photos:empty{display:none}
+  .ph{width:62px;height:62px;border-radius:10px;object-fit:cover;border:1px solid var(--line2);background:#f2f0ea}
+
+  /* Medicine card */
+  .meds{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .med-it{display:flex;align-items:center;gap:12px;padding:13px 16px;border-top:1px solid var(--line)}
+  .meds .med-it:first-child{border-top:none}
+  .med-it .mic{width:36px;height:36px;border-radius:10px;flex:none;display:grid;place-items:center;background:var(--med-l);font-size:16px}
+  .med-it .mi{flex:1;min-width:0}
+  .med-it .mi .mnn{font-size:14.5px;font-weight:700;letter-spacing:-.2px}
+  .med-it .mi .mtt{font-size:11.5px;color:var(--ink3);margin-top:1px}
+  .med-it.taken .mnn{color:var(--ink3)}
+  .med-cbx{width:26px;height:26px;border-radius:99px;border:2px solid var(--line2);flex:none;display:grid;place-items:center;background:#fff;color:#fff;font-size:15px;transition:all .15s}
+  .med-it.taken .med-cbx{background:var(--med);border-color:var(--med)}
+  .med-time{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px}
+  .med-time.up{color:var(--ink3);background:#F3F1EB}
+  .med-time.due{color:var(--amber);background:var(--amber-l)}
+  .med-tip{font-size:11px;color:var(--ink3);padding:0 16px 13px;margin-top:-2px;display:flex;gap:6px;align-items:flex-start}
+
+  /* Footer note */
+  .docnote{font-size:11.5px;color:var(--ink3);text-align:center;margin-top:22px;line-height:1.5;padding:0 8px}
+
+  /* Modal */
+  .ovl{position:fixed;inset:0;background:rgba(30,28,24,.42);backdrop-filter:blur(2px);z-index:60;display:none;align-items:flex-end;justify-content:center}
+  .ovl.on{display:flex}
+  .sheet{background:var(--surface);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:8px 18px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .25s cubic-bezier(.2,.8,.2,1)}
+  @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:translateY(0);opacity:1}}
+  .grab{width:38px;height:4px;border-radius:99px;background:var(--line2);margin:6px auto 12px}
+  .sheet h3{font-size:18px;font-weight:700;letter-spacing:-.3px;margin:0 0 3px}
+  .sheet .sd{font-size:12.5px;color:var(--ink3);margin-bottom:16px}
+  .fld{margin-bottom:13px}
+  .fld label{display:block;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:6px}
+  .inp{width:100%;font-family:var(--font);font-size:15px;padding:12px 13px;border:1px solid var(--line2);border-radius:12px;background:#FBFAF7;color:var(--ink)}
+  .inp:focus{outline:none;border-color:var(--green);background:#fff}
+  select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239C978D' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+  .row2{display:flex;gap:10px}
+  .row2>*{flex:1}
+  .est{font-size:13px;color:var(--green);font-weight:600;background:var(--green-l);border:1px solid #CFE6D0;border-radius:11px;padding:10px 13px;margin:4px 0 14px;display:none}
+  .bigbtn{width:100%;font-family:var(--font);font-size:15.5px;font-weight:700;color:#fff;background:var(--green);border:none;border-radius:13px;padding:14px;cursor:pointer;letter-spacing:.1px}
+  .bigbtn:active{background:var(--green-d)}
+  .bigbtn.ghost{background:#fff;color:var(--ink2);border:1px solid var(--line2);margin-top:8px}
+  .quicklist{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+  .qf{font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:99px;border:1px solid var(--line2);background:#fff;color:var(--ink2);cursor:pointer}
+  .qf.sel{background:var(--green-l);border-color:#CFE6D0;color:var(--green)}
+
+  /* Toast */
+  .toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:#26241F;color:#fff;font-size:13.5px;font-weight:500;padding:12px 18px;border-radius:13px;box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:90;opacity:0;transition:all .3s;max-width:90vw;text-align:center}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ADMIN */
+  .breach{background:var(--red-l);border:1px solid #F0CDC8;border-radius:var(--radius);padding:14px 16px;margin-bottom:11px;display:none;gap:11px;align-items:flex-start}
+  .breach.on{display:flex}
+  .breach .bic{font-size:20px}
+  .breach .bt{flex:1}
+  .breach .bt b{display:block;font-size:14px;font-weight:700;color:var(--red);margin-bottom:2px}
+  .breach .bt span{font-size:12.5px;color:#9A4137}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--green)}
+  .live .pulse{width:8px;height:8px;border-radius:99px;background:var(--green);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(38,162,105,.4)}50%{opacity:.6;box-shadow:0 0 0 5px rgba(38,162,105,0)}}
+  .feed{display:flex;flex-direction:column;gap:0}
+  .ev{display:flex;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
+  .feedcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:4px 16px 8px}
+  .ev:first-child{border-top:none}
+  .ev .evic{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px}
+  .ev .evic.food{background:var(--green-l)}
+  .ev .evic.extra{background:var(--med-l)}
+  .ev .evic.photo{background:#FBF1DF}
+  .ev .evic.medi{background:var(--med-l)}
+  .ev .evb{flex:1;min-width:0}
+  .ev .evb .et{font-size:14px;font-weight:600;letter-spacing:-.1px}
+  .ev .evb .et b{font-weight:700}
+  .ev .evb .es{font-size:11.5px;color:var(--ink3);margin-top:1px}
+  .ev .evt{font-size:11px;color:var(--ink3);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .ev img.evph{width:54px;height:54px;border-radius:9px;object-fit:cover;border:1px solid var(--line2);margin-top:7px}
+  .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line2);background:#f2f0ea}
+  .gallery:empty::after{content:"No photos yet today";color:var(--ink3);font-size:13px;grid-column:1/-1;text-align:center;padding:18px 0}
+  .empty{text-align:center;color:var(--ink3);font-size:13.5px;padding:26px 0}
+  .miniadh{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+  .adhpill{font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:99px;border:1px solid var(--line2);background:#fff;color:var(--ink2);display:flex;align-items:center;gap:6px}
+  .adhpill.ok{color:var(--med);background:var(--med-l);border-color:#D9DCF5}
+  .adhpill.miss{color:var(--amber);background:var(--amber-l);border-color:#F0E0C2}
+
+  .offline{font-size:11px;color:var(--amber);text-align:center;background:var(--amber-l);border-bottom:1px solid #F0E0C2;padding:5px;display:none}
+  .offline.on{display:block}
+</style>
+</head>
+<body>
+<div class="offline" id="offline">Working on this device only — backend not connected yet. Your data is saved locally.</div>
+
+<div class="wrap">
+  <header>
+    <div class="hgreet">
+      <div>
+        <div class="hi" id="hi">Good morning</div>
+        <div class="nm" id="who">Richa</div>
+        <div class="modepill" id="modepill" style="display:none">Partner view</div>
+      </div>
+      <div class="dt" id="todaylong"></div>
+    </div>
+
+    <div class="hero">
+      <div class="ring">
+        <svg width="104" height="104" viewBox="0 0 104 104">
+          <circle cx="52" cy="52" r="46" fill="none" stroke="#EFEDE6" stroke-width="9"/>
+          <circle id="ringfill" cx="52" cy="52" r="46" fill="none" stroke="#26A269" stroke-width="9" stroke-linecap="round" stroke-dasharray="289.03" stroke-dashoffset="289.03"/>
+        </svg>
+        <div class="ctr">
+          <div class="big num"><span id="pNow">0</span><small>g</small></div>
+          <div class="cap">of 56g goal</div>
+        </div>
+      </div>
+      <div class="heroR">
+        <div class="lbl" id="heroLbl">Protein today</div>
+        <div class="sub" id="heroSub">Absorbed estimate · target 56g</div>
+        <div class="chipline" id="chips"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="daynav">
+    <div class="arw" id="dPrev">‹</div>
+    <div class="lbl" id="dLabel">Today<span id="dDate"></span></div>
+    <div class="arw" id="dNext">›</div>
+  </div>
+  <div class="preview-note" id="previewNote">Previewing another day — switch back to today to log meals.</div>
+
+  <main id="main"></main>
+
+  <div class="docnote" id="docnote"></div>
+</div>
+
+<!-- Extra food modal -->
+<div class="ovl" id="extraOvl">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3>Ate something else?</h3>
+    <div class="sd">Add it so your protein count stays accurate.</div>
+    <div class="fld">
+      <label>Pick a common food (or type your own below)</label>
+      <div class="quicklist" id="quickFoods"></div>
+    </div>
+    <div class="fld">
+      <label>Food name</label>
+      <input class="inp" id="exName" placeholder="e.g. Boiled egg, Peanut chikki">
+    </div>
+    <div class="row2">
+      <div class="fld">
+        <label>Quantity</label>
+        <input class="inp num" id="exQty" type="number" inputmode="decimal" min="0" step="any" value="1">
+      </div>
+      <div class="fld">
+        <label>Unit</label>
+        <select class="inp" id="exUnit">
+          <option value="serv">serving(s)</option>
+          <option value="piece">piece(s)</option>
+          <option value="g">grams</option>
+          <option value="cup">cup(s)</option>
+        </select>
+      </div>
+    </div>
+    <div class="fld" id="per100wrap" style="display:none">
+      <label>Protein per 100g (if known)</label>
+      <input class="inp num" id="exPer100" type="number" inputmode="decimal" min="0" step="any" placeholder="e.g. 11">
+    </div>
+    <div class="est" id="exEst"></div>
+    <button class="bigbtn" id="exAdd">Add to today</button>
+    <button class="bigbtn ghost" id="exCancel">Cancel</button>
+  </div>
+</div>
+
+<!-- Add medicine modal (admin) -->
+<div class="ovl" id="medOvl">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3>Add a medicine</h3>
+    <div class="sd">Adds a daily reminder for Richa.</div>
+    <div class="fld"><label>Name</label><input class="inp" id="mName" placeholder="e.g. Arginine sachet"></div>
+    <div class="row2">
+      <div class="fld"><label>Time</label><input class="inp" id="mTime" type="time" value="09:00"></div>
+      <div class="fld"><label>Note</label><input class="inp" id="mNote" placeholder="e.g. after food"></div>
+    </div>
+    <button class="bigbtn" id="mAdd">Add medicine</button>
+    <button class="bigbtn ghost" id="mCancel">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG  — set BACKEND_URL to your Google Apps Script web-app
+   URL to sync Richa's phone <-> your phone. Leave blank to run
+   on a single device using local storage.
+   ============================================================ */
+const CONFIG = {
+  BACKEND_URL: "https://script.google.com/macros/s/AKfycbzHVBhdokZ-PgQeVA4Y4vpcO62_oRGVn94ysxKr0IEP-x31zfyEOQ91ydK4p8gM1brc/exec",          // wired in
+  DAILY_TARGET: 56,         // grams of protein (absorbed)
+  EFFICIENCY: 0.9,          // absorption factor
+  POLL_MS: 20000,           // admin auto-refresh interval
+  RENUDGE_MIN: 10           // re-remind every N minutes if not marked
+};
+
+/* ---------- The approved 7-day plan (per-item protein, raw g) ---------- */
+const SHAKE = {n:"Protein shake + cow milk", p:16.4};
+const eggw  = n => ({n:`Egg white ×${n}`, p:+(n*3.6).toFixed(1)});
+const PLAN = {
+  Mon:[
+    {m:"Morning Juice",t:"07:30",ic:"🥤",items:[{n:"ABC Juice (apple+beet+carrot)",p:2}]},
+    {m:"Breakfast",t:"08:30",ic:"🍳",items:[SHAKE,eggw(4),{n:"2 whole-wheat toast",p:6}]},
+    {m:"Mid-morning",t:"11:00",ic:"🥛",items:[{n:"Chaach (buttermilk)",p:3.5},{n:"Apple",p:0.5}]},
+    {m:"Lunch",t:"13:00",ic:"🍲",items:[{n:"Moong dal (1 bowl)",p:12},{n:"Paneer 100g",p:18},{n:"Curd bowl",p:5},{n:"2 roti + salad",p:6}]},
+    {m:"Evening snack",t:"16:00",ic:"🍵",items:[{n:"Coconut water",p:0.5},{n:"Peach",p:1}]},
+    {m:"Dinner",t:"19:30",ic:"🍗",items:[{n:"Chicken gravy 150g",p:28},{n:"2 roti + salad",p:6}]},
+  ],
+  Tue:[
+    {m:"Morning Juice",t:"07:30",ic:"🥤",items:[{n:"ABC Juice (apple+beet+carrot)",p:2}]},
+    {m:"Breakfast",t:"08:30",ic:"🍳",items:[SHAKE,eggw(3),{n:"Poha with peas & carrot",p:4}]},
+    {m:"Mid-morning",t:"11:00",ic:"🥛",items:[{n:"Chaach (buttermilk)",p:3.5},{n:"Apple",p:0.5}]},
+    {m:"Lunch",t:"13:00",ic:"🍲",items:[{n:"Masoor dal (1 bowl)",p:12},{n:"Paneer bhurji 100g",p:18},{n:"Curd bowl",p:5},{n:"2 roti + salad",p:6}]},
+    {m:"Evening snack",t:"16:00",ic:"🍵",items:[{n:"Coconut water",p:0.5},{n:"Roasted chana",p:5}]},
+    {m:"Dinner",t:"19:30",ic:"🥣",items:[{n:"Lauki–moong khichdi",p:10},{n:"Curd bowl",p:5},{n:"Sautéed vegetables",p:2}]},
+  ],
+  Wed:[
+    {m:"Morning Juice",t:"07:30",ic:"🥤",items:[{n:"ABC Juice (apple+beet+carrot)",p:2}]},
+    {m:"Breakfast",t:"08:30",ic:"🍳",items:[SHAKE,eggw(2),{n:"Besan cheela (2 pc)",p:8},{n:"Banana",p:1.5}]},
+    {m:"Mid-morning",t:"11:00",ic:"🥛",items:[{n:"Chaach (buttermilk)",p:3.5},{n:"Mango",p:1.5}]},
+    {m:"Lunch",t:"13:00",ic:"🍲",items:[{n:"Chana dal (1 bowl)",p:13},{n:"Grilled paneer 100g",p:18},{n:"Curd bowl",p:5},{n:"2 roti + salad",p:6}]},
+    {m:"Evening snack",t:"16:00",ic:"🍵",items:[{n:"Coconut water",p:0.5},{n:"Roasted chana",p:5}]},
+    {m:"Dinner",t:"19:30",ic:"🐟",items:[{n:"Fried fish (small)",p:18},{n:"Lauki soup",p:2},{n:"1 roti",p:3}]},
+  ],
+  Thu:[
+    {m:"Morning Juice",t:"07:30",ic:"🥤",items:[{n:"ABC Juice (apple+beet+carrot)",p:2}]},
+    {m:"Breakfast",t:"08:30",ic:"🍳",items:[SHAKE,eggw(3),{n:"2 idli + chutney",p:4}]},
+    {m:"Mid-morning",t:"11:00",ic:"🥥",items:[{n:"Coconut water",p:0.5},{n:"Apple",p:0.5}]},
+    {m:"Lunch",t:"13:00",ic:"🍲",items:[{n:"Moong dal (1 bowl)",p:12},{n:"Paneer salad 100g",p:18},{n:"Curd bowl",p:5},{n:"2 roti + salad",p:6}]},
+    {m:"Evening snack",t:"16:00",ic:"🍓",items:[{n:"Mixed fruits",p:1.5}]},
+    {m:"Dinner",t:"19:30",ic:"🍗",items:[{n:"Chicken soup 100g",p:19},{n:"Sautéed vegetables",p:2},{n:"1 roti",p:3}]},
+  ],
+  Fri:[
+    {m:"Morning Juice",t:"07:30",ic:"🥤",items:[{n:"ABC Juice (apple+beet+carrot)",p:2}]},
+    {m:"Breakfast",t:"08:30",ic:"🍳",items:[SHAKE,eggw(2),{n:"Upma with carrot & peas",p:4}]},
+    {m:"Mid-morning",t:"11:00",ic:"🥜",items:[{n:"Mixed nuts",p:5},{n:"Mango",p:1.5}]},
+    {m:"Lunch",t:"13:00",ic:"🍲",items:[{n:"Chana dal (1 bowl)",p:13},{n:"Paneer matar 100g",p:18},{n:"Curd bowl",p:5},{n:"2 roti + salad",p:6}]},
+    {m:"Evening snack",t:"16:00",ic:"🥥",items:[{n:"Coconut water",p:0.5}]},
+    {m:"Dinner",t:"19:30",ic:"🍳",items:[{n:"Egg-white omelette (3)",p:10.8},{n:"2 bread",p:5}]},
+  ],
+  Sat:[
+    {m:"Morning Juice",t:"07:30",ic:"🥤",items:[{n:"ABC Juice (apple+beet+carrot)",p:2}]},
+    {m:"Breakfast",t:"08:30",ic:"🍳",items:[SHAKE,eggw(3),{n:"Moong dal cheela (2 pc)",p:8}]},
+    {m:"Mid-morning",t:"11:00",ic:"🌽",items:[{n:"Steamed corn",p:3},{n:"Kiwi",p:1}]},
+    {m:"Lunch",t:"13:00",ic:"🍲",items:[{n:"Masoor dal (1 bowl)",p:12},{n:"Paneer w/ carrot & beet 100g",p:18},{n:"Curd bowl",p:5},{n:"2 roti + salad",p:6}]},
+    {m:"Evening snack",t:"16:00",ic:"🥥",items:[{n:"Coconut water",p:0.5}]},
+    {m:"Dinner",t:"19:30",ic:"🍗",items:[{n:"Chicken stew 150g",p:28},{n:"Sautéed vegetables",p:2},{n:"1 roti",p:3}]},
+  ],
+  Sun:[
+    {m:"Morning Juice",t:"07:30",ic:"🥤",items:[{n:"ABC Juice (apple+beet+carrot)",p:2}]},
+    {m:"Breakfast",t:"08:30",ic:"🍳",items:[SHAKE,eggw(3),{n:"Dosa + coconut chutney",p:4}]},
+    {m:"Mid-morning",t:"11:00",ic:"🥥",items:[{n:"Coconut water",p:0.5},{n:"Apple",p:0.5}]},
+    {m:"Lunch",t:"13:00",ic:"🍲",items:[{n:"Moong dal (1 bowl)",p:12},{n:"Paneer bhurji 100g",p:18},{n:"Curd bowl",p:5},{n:"2 roti + salad",p:6}]},
+    {m:"Evening snack",t:"16:00",ic:"🥜",items:[{n:"Peanuts / roasted chana",p:6}]},
+    {m:"Dinner",t:"19:30",ic:"🍗",items:[{n:"Chicken biryani (100g chicken)",p:18},{n:"Raita",p:5}]},
+  ],
+};
+const DAYKEYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DAYFULL = {Sun:"Sunday",Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday",Sat:"Saturday"};
+
+/* ---------- Medicine schedule (from Richa's prescription) ---------- */
+let MEDS = [
+  {id:"shelcal", name:"Shelcal HD", icon:"🦴", time:"09:30", note:"Calcium + Vit D · after breakfast", freq:"daily"},
+  {id:"softeron", name:"Softeron Z", icon:"🩸", time:"14:30", note:"Iron · 1 hr after lunch", freq:"daily", tip:"Take with the ABC juice or citrus for better iron absorption — avoid right after milk/curd."},
+  {id:"ecosprin", name:"Ecosprin 150", icon:"💊", time:"21:30", note:"Low-dose aspirin · bedtime", freq:"daily"},
+  {id:"lumia", name:"Lumia 60K", icon:"☀️", time:"10:00", note:"Vitamin D3 · once a week", freq:"weekly", weekday:0}, // Sunday
+  {id:"arginine", name:"Arginine sachet", icon:"🧂", time:"11:30", note:"Once daily · mix in water", freq:"daily"},
+];
+
+/* ---------- Extra-food protein DB (protein per stated unit) ---------- */
+const FOOD_DB = [
+  {n:"Boiled egg",unit:"piece",p:6},
+  {n:"Egg white",unit:"piece",p:3.6},
+  {n:"Paneer",unit:"g",per100:18},
+  {n:"Curd / dahi",unit:"cup",p:8},
+  {n:"Milk",unit:"cup",p:8},
+  {n:"Moong dal (cooked)",unit:"cup",p:12},
+  {n:"Chana / chole",unit:"cup",p:13},
+  {n:"Rajma",unit:"cup",p:13},
+  {n:"Soya chunks (cooked)",unit:"cup",p:18},
+  {n:"Sprouts (moong)",unit:"cup",p:14},
+  {n:"Peanuts",unit:"g",per100:25},
+  {n:"Almonds",unit:"piece",p:0.25},
+  {n:"Roasted chana",unit:"cup",p:15},
+  {n:"Chicken (cooked)",unit:"g",per100:27},
+  {n:"Fish (cooked)",unit:"g",per100:22},
+  {n:"Roti / chapati",unit:"piece",p:3},
+  {n:"Bread slice",unit:"piece",p:2.5},
+  {n:"Idli",unit:"piece",p:2},
+  {n:"Dosa",unit:"piece",p:4},
+  {n:"Banana",unit:"piece",p:1.3},
+  {n:"Apple",unit:"piece",p:0.5},
+  {n:"Whey scoop",unit:"serv",p:8.4},
+  {n:"Cheese slice",unit:"piece",p:4},
+  {n:"Tofu",unit:"g",per100:8},
+];
+
+/* ============================================================
+   STATE  (per-date)
+   ============================================================ */
+const isAdmin = new URLSearchParams(location.search).get("mode")==="admin";
+let viewKey, todayKey, dateStr;          // YYYY-MM-DD for the date being viewed / today
+let dayOffset = 0;                       // 0 = today, -n preview past, +n preview future
+let STATE = {};                          // STATE[dateStr] = {meals:{}, meds:{}, extras:{}}
+let LOGS = [];                           // admin event feed for current date
+const notifiedAt = {};                   // slotId -> last notify ms
+
+function ymd(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function dateFor(offset){ const d=new Date(); d.setDate(d.getDate()+offset); return d; }
+function dayKeyOf(d){ return DAYKEYS[d.getDay()]; }
+function blankDay(){ return {meals:{}, meds:{}, extras:{}}; }
+function curDay(){ if(!STATE[dateStr]) STATE[dateStr]=blankDay(); return STATE[dateStr]; }
+
+/* ---------- persistence ---------- */
+function lsKey(d){ return "richacare:"+d; }
+function saveLocal(){ try{ localStorage.setItem(lsKey(dateStr), JSON.stringify(STATE[dateStr]||blankDay())); }catch(e){} }
+function loadLocal(d){ try{ const r=localStorage.getItem(lsKey(d)); return r?JSON.parse(r):null; }catch(e){ return null; } }
+
+async function backend(action, payload){
+  if(!CONFIG.BACKEND_URL) return null;
+  try{
+    if(action==="get"){
+      const u = CONFIG.BACKEND_URL+"?action=get&date="+encodeURIComponent(payload.date)+"&t="+Date.now();
+      const r = await fetch(u);
+      return await r.json();
+    } else {
+      const r = await fetch(CONFIG.BACKEND_URL, {
+        method:"POST",
+        headers:{"Content-Type":"text/plain;charset=utf-8"}, // avoids CORS preflight
+        body: JSON.stringify(Object.assign({action}, payload))
+      });
+      return await r.json();
+    }
+  }catch(e){ console.warn("backend",action,e); return null; }
+}
+
+let saveTimer=null;
+function persist(){
+  saveLocal();
+  if(!CONFIG.BACKEND_URL) return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ backend("save",{date:dateStr, state:STATE[dateStr]}); }, 400);
+}
+function logEvent(type, detail, photoUrl){
+  const ev={ts:Date.now(), date:dateStr, type, detail, photoUrl:photoUrl||""};
+  if(!isAdmin) backend("log", ev);
+}
+
+async function pullToday(){
+  if(CONFIG.BACKEND_URL){
+    const res = await backend("get",{date:dateStr});
+    if(res){
+      STATE[dateStr] = res.state || STATE[dateStr] || blankDay();
+      LOGS = res.logs || [];
+      saveLocal();
+      return;
+    }
+  }
+  STATE[dateStr] = loadLocal(dateStr) || STATE[dateStr] || blankDay();
+}
+
+/* ============================================================
+   PROTEIN MATH
+   ============================================================ */
+function rawProtein(){
+  const day = curDay(), plan = PLAN[viewKey]||[];
+  let raw=0;
+  plan.forEach((meal,mi)=>{
+    const ms = day.meals[mi]||{};
+    meal.items.forEach((it,ii)=>{ if(ms["i"+ii]) raw+=it.p; });
+  });
+  Object.values(day.extras||{}).forEach(arr=>{ (arr||[]).forEach(x=> raw+=(+x.p||0)); });
+  return raw;
+}
+function absorbed(){ return Math.round(rawProtein()*CONFIG.EFFICIENCY); }
+
+/* ============================================================
+   TIME / STATUS helpers
+   ============================================================ */
+function hm(t){ const [h,m]=t.split(":").map(Number); return h*60+m; }
+function nowMin(){ const d=new Date(); return d.getHours()*60+d.getMinutes(); }
+function mealStatus(mi){
+  const day=curDay(), plan=PLAN[viewKey][mi];
+  const ms=day.meals[mi]||{};
+  const total=plan.items.length;
+  const done=plan.items.filter((_,ii)=>ms["i"+ii]).length;
+  if(total>0 && done>=total) return "done";
+  if(dayOffset!==0) return "up";
+  return nowMin()>=hm(plan.t) ? "due" : "up";
+}
+function medDone(id){ return !!(curDay().meds[id]&&curDay().meds[id].taken); }
+function medVisibleToday(med){
+  if(med.freq==="weekly"){ return dateFor(dayOffset).getDay()===med.weekday; }
+  return true;
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const $ = s=>document.querySelector(s);
+const main = $("#main");
+
+function setHero(){
+  const ab=absorbed(), target=CONFIG.DAILY_TARGET;
+  $("#pNow").textContent=ab;
+  const pct=Math.min(1, ab/target);
+  const C=289.03;
+  $("#ringfill").style.strokeDashoffset = (C*(1-pct)).toFixed(1);
+  $("#ringfill").style.stroke = ab>=target ? "#2E7D32" : "#26A269";
+  // chips
+  const chips=$("#chips"); chips.innerHTML="";
+  const metChip=document.createElement("div");
+  if(ab>=target){ metChip.className="chip ok"; metChip.innerHTML='<span class="dot"></span>Goal reached'; }
+  else { metChip.className="chip"; metChip.innerHTML=`<span class="dot" style="background:var(--amber)"></span>${target-ab}g to go`; }
+  chips.appendChild(metChip);
+  // medicine chip
+  const meds=MEDS.filter(medVisibleToday);
+  const taken=meds.filter(m=>medDone(m.id)).length;
+  const mc=document.createElement("div");
+  mc.className="chip med"; mc.innerHTML=`<span class="dot"></span>Meds ${taken}/${meds.length}`;
+  chips.appendChild(mc);
+}
+
+function dayHeaderLabels(){
+  const d=dateFor(dayOffset);
+  $("#dDate").textContent = d.toLocaleDateString(undefined,{day:"numeric",month:"short"});
+  $("#dLabel").childNodes[0].nodeValue = dayOffset===0 ? "Today · "+DAYFULL[viewKey].slice(0,3) : DAYFULL[viewKey];
+  $("#dPrev").toggleAttribute("disabled", dayOffset<=-1);   // allow 1 day back only
+  $("#dNext").toggleAttribute("disabled", dayOffset>=6);
+  $("#previewNote").style.display = dayOffset===0 ? "none":"block";
+  $("#todaylong").textContent = new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+  const h=new Date().getHours();
+  $("#hi").textContent = h<12?"Good morning":h<17?"Good afternoon":"Good evening";
+}
+
+function svgCheck(){ return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'; }
+function icoCam(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'; }
+function icoPlus(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'; }
+
+function renderRicha(){
+  setHero(); dayHeaderLabels();
+  const plan=PLAN[viewKey]||[], day=curDay();
+  const editable = dayOffset===0;
+  let html="";
+  // meals
+  plan.forEach((meal,mi)=>{
+    const st=mealStatus(mi);
+    const ms=day.meals[mi]||{};
+    const photos=(ms.photos||[]);
+    html+=`<div class="meal ${st==='done'?'done':''}">
+      <div class="top">
+        <div class="ic">${meal.ic}</div>
+        <div class="ti"><div class="mn">${meal.m}</div><div class="tm">${fmt12(meal.t)}</div></div>
+        <div class="status ${st}">${st==='done'?'Done':st==='due'?'Time to eat':'Upcoming'}</div>
+      </div>
+      <div class="items">`;
+    meal.items.forEach((it,ii)=>{
+      const ck=!!ms["i"+ii];
+      html+=`<div class="item ${ck?'checked':''}" data-mi="${mi}" data-ii="${ii}" ${editable?'data-tap="1"':''}>
+        <div class="cbx">${ck?svgCheck():''}</div>
+        <div class="nm">${it.n}</div>
+        <div class="pg">${it.p}g</div>
+      </div>`;
+    });
+    // extras logged under this meal
+    (day.extras["m"+mi]||[]).forEach((x,xi)=>{
+      html+=`<div class="item extra checked" data-rm-extra="${mi}:${xi}">
+        <div class="cbx">${svgCheck()}</div>
+        <div class="nm">${x.n}<span class="tag">EXTRA</span></div>
+        <div class="pg">${(+x.p).toFixed(1)}g</div>
+      </div>`;
+    });
+    html+=`</div>`;
+    if(photos.length){
+      html+=`<div class="photos">`+photos.map(u=>`<img class="ph" src="${u}">`).join("")+`</div>`;
+    }
+    if(editable){
+      html+=`<div class="mealfoot">
+        <button class="btn g" data-photo="${mi}">${icoCam()} Add photo</button>
+        <button class="btn" data-extra="${mi}">${icoPlus()} Ate something else</button>
+      </div>`;
+    }
+  });
+
+  // medicine section
+  html+=`<div class="sechead"><h2>Medicines</h2><div class="ln"></div></div>`;
+  html+=`<div class="meds">`;
+  const meds=MEDS.filter(medVisibleToday);
+  meds.forEach(med=>{
+    const taken=medDone(med.id);
+    const due = editable && nowMin()>=hm(med.time) && !taken;
+    html+=`<div class="med-it ${taken?'taken':''}">
+      <div class="mic">${med.icon}</div>
+      <div class="mi"><div class="mnn">${med.name}</div><div class="mtt">${med.note}${med.freq==='weekly'?' · '+DAYFULL[DAYKEYS[med.weekday]]:''}</div></div>
+      <div class="med-time ${due?'due':'up'}">${fmt12(med.time)}</div>
+      <div class="med-cbx" ${editable?`data-med="${med.id}"`:''}>${taken?svgCheck():''}</div>
+    </div>`;
+    if(med.tip){ html+=`<div class="med-tip">💡 ${med.tip}</div>`; }
+  });
+  html+=`</div>`;
+  main.innerHTML=html;
+  bindRicha();
+}
+
+function renderAdmin(){
+  setHero(); dayHeaderLabels();
+  $("#who").textContent="Richa's day";
+  $("#hi").textContent="Live tracking";
+  $("#modepill").style.display="inline-flex";
+  $("#heroLbl").textContent="Richa's protein today";
+  const ab=absorbed(), raw=rawProtein();
+  $("#heroSub").textContent=`Raw ${raw.toFixed(0)}g · absorbed ${ab}g · target ${CONFIG.DAILY_TARGET}g`;
+
+  // breach banner (after dinner & below target, today only)
+  const afterDinner = dayOffset===0 && nowMin()>= hm("21:00");
+  const breach = $("#breachBox");
+  let html="";
+  html+=`<div class="breach ${(!afterDinner||ab>=CONFIG.DAILY_TARGET)?'':'on'}" id="breachBox">
+      <div class="bic">⚠️</div>
+      <div class="bt"><b>Protein below target today</b><span>Richa is at ${ab}g of ${CONFIG.DAILY_TARGET}g after dinner. A glass of milk, curd, or a whey scoop can close the gap.</span></div>
+    </div>`;
+
+  // live header
+  html+=`<div class="sechead"><h2>Activity</h2><div class="ln"></div><span class="live"><span class="pulse"></span>Live</span></div>`;
+
+  // medicine adherence
+  const meds=MEDS.filter(medVisibleToday);
+  html+=`<div class="miniadh" style="margin-bottom:14px">`;
+  meds.forEach(med=>{
+    const taken=medDone(med.id);
+    html+=`<div class="adhpill ${taken?'ok':(dayOffset===0&&nowMin()>=hm(med.time)?'miss':'')}">${med.icon} ${med.name} ${taken?'✓':'•'}</div>`;
+  });
+  html+=`</div>`;
+
+  // event feed (from logs if backend, else reconstruct from state)
+  const events = buildFeed();
+  html+=`<div class="feedcard">`;
+  if(events.length===0){
+    html+=`<div class="empty">No activity logged yet for this day.</div>`;
+  } else {
+    html+=`<div class="feed">`;
+    events.forEach(ev=>{
+      html+=`<div class="ev">
+        <div class="evic ${ev.cls}">${ev.icon}</div>
+        <div class="evb"><div class="et">${ev.title}</div><div class="es">${ev.sub}</div>
+          ${ev.photo?`<img class="evph" src="${ev.photo}">`:''}</div>
+        <div class="evt">${ev.time}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`</div>`;
+
+  // photo gallery
+  html+=`<div class="sechead"><h2>Finished plates</h2><div class="ln"></div></div>`;
+  const pics=allPhotos();
+  html+=`<div class="gallery">`+pics.map(u=>`<img src="${u}">`).join("")+`</div>`;
+
+  // add medicine button
+  html+=`<div style="margin-top:18px"><button class="btn" id="addMedBtn" style="width:100%;justify-content:center">${icoPlus()} Add a medicine reminder</button></div>`;
+
+  main.innerHTML=html;
+  $("#addMedBtn")&&$("#addMedBtn").addEventListener("click",()=>openMed());
+}
+
+function buildFeed(){
+  // Prefer server logs (cross-device). Fall back to state snapshot.
+  const out=[];
+  if(LOGS && LOGS.length){
+    LOGS.slice().sort((a,b)=>b.ts-a.ts).forEach(l=>{
+      let icon="✓",cls="food",title=l.detail,sub="";
+      if(l.type==="meal"){ icon="🍽️"; cls="food"; title=l.detail; sub="Marked eaten"; }
+      else if(l.type==="extra"){ icon="➕"; cls="extra"; title=l.detail; sub="Extra food added"; }
+      else if(l.type==="photo"){ icon="📷"; cls="photo"; title="Photo of finished plate"; sub=l.detail||""; }
+      else if(l.type==="med"){ icon="💊"; cls="medi"; title=l.detail; sub="Medicine taken"; }
+      out.push({icon,cls,title,sub,photo:l.photoUrl,time:clock(l.ts)});
+    });
+    return out;
+  }
+  // fallback: reconstruct (same-device admin)
+  const day=curDay(), plan=PLAN[viewKey]||[];
+  plan.forEach((meal,mi)=>{
+    const ms=day.meals[mi]||{};
+    meal.items.forEach((it,ii)=>{ if(ms["i"+ii]) out.push({icon:"🍽️",cls:"food",title:it.n,sub:meal.m+" · eaten",photo:"",time:""}); });
+    (day.extras["m"+mi]||[]).forEach(x=>out.push({icon:"➕",cls:"extra",title:x.n,sub:meal.m+" · extra ("+(+x.p).toFixed(1)+"g)",photo:"",time:""}));
+    (ms.photos||[]).forEach(u=>out.push({icon:"📷",cls:"photo",title:"Finished plate",sub:meal.m,photo:u,time:""}));
+  });
+  MEDS.filter(medVisibleToday).forEach(m=>{ if(medDone(m.id)) out.push({icon:"💊",cls:"medi",title:m.name,sub:"Taken",photo:"",time:""}); });
+  return out.reverse();
+}
+function allPhotos(){
+  const day=curDay(); let p=[];
+  Object.values(day.meals||{}).forEach(ms=>{ (ms.photos||[]).forEach(u=>p.push(u)); });
+  if(LOGS) LOGS.forEach(l=>{ if(l.type==="photo"&&l.photoUrl) p.push(l.photoUrl); });
+  return [...new Set(p)];
+}
+
+function fmt12(t){ let [h,m]=t.split(":").map(Number); const ap=h>=12?"PM":"AM"; h=h%12||12; return h+":"+String(m).padStart(2,"0")+" "+ap; }
+function clock(ts){ return new Date(ts).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}); }
+
+/* ============================================================
+   INTERACTIONS (Richa)
+   ============================================================ */
+function bindRicha(){
+  document.querySelectorAll('[data-tap]').forEach(el=>{
+    el.addEventListener("click",()=>{
+      const mi=+el.dataset.mi, ii=+el.dataset.ii;
+      const day=curDay(); day.meals[mi]=day.meals[mi]||{};
+      const key="i"+ii, willCheck=!day.meals[mi][key];
+      day.meals[mi][key]=willCheck;
+      if(willCheck){
+        const it=PLAN[viewKey][mi].items[ii];
+        logEvent("meal", it.n+" ("+PLAN[viewKey][mi].m+")");
+        haptic();
+      }
+      persist(); renderRicha();
+      if(willCheck && absorbed()>=CONFIG.DAILY_TARGET) toast("🎉 Protein goal reached — "+absorbed()+"g!");
+    });
+  });
+  document.querySelectorAll('[data-rm-extra]').forEach(el=>{
+    el.addEventListener("click",()=>{
+      const [mi,xi]=el.dataset.rmExtra.split(":").map(Number);
+      const arr=curDay().extras["m"+mi]; if(arr){ arr.splice(xi,1); persist(); renderRicha(); }
+    });
+  });
+  document.querySelectorAll('[data-med]').forEach(el=>{
+    el.addEventListener("click",()=>{
+      const id=el.dataset.med, day=curDay();
+      day.meds[id]=day.meds[id]||{};
+      const willTake=!day.meds[id].taken;
+      day.meds[id].taken=willTake; day.meds[id].takenAt=willTake?Date.now():null;
+      if(willTake){ const med=MEDS.find(m=>m.id===id); logEvent("med", med.name); haptic(); toast("✓ "+MEDS.find(m=>m.id===id).name+" marked taken"); }
+      persist(); renderRicha();
+    });
+  });
+  document.querySelectorAll('[data-photo]').forEach(el=>{
+    el.addEventListener("click",()=> pickPhoto(+el.dataset.photo));
+  });
+  document.querySelectorAll('[data-extra]').forEach(el=>{
+    el.addEventListener("click",()=> openExtra(+el.dataset.extra));
+  });
+}
+
+/* ---------- photo capture + downscale ---------- */
+let pendingMeal=null;
+function pickPhoto(mi){
+  pendingMeal=mi;
+  const inp=document.createElement("input");
+  inp.type="file"; inp.accept="image/*"; inp.capture="environment";
+  inp.onchange=async()=>{ if(inp.files&&inp.files[0]) await handlePhoto(inp.files[0]); };
+  inp.click();
+}
+function resizeImage(file,max=900,q=0.55){
+  return new Promise(res=>{
+    const img=new Image(), rd=new FileReader();
+    rd.onload=()=>{ img.onload=()=>{
+      let {width:w,height:h}=img;
+      if(w>h && w>max){ h=h*max/w; w=max; } else if(h>max){ w=w*max/h; h=max; }
+      const c=document.createElement("canvas"); c.width=w; c.height=h;
+      c.getContext("2d").drawImage(img,0,0,w,h);
+      res(c.toDataURL("image/jpeg",q));
+    }; img.src=rd.result; };
+    rd.readAsDataURL(file);
+  });
+}
+async function handlePhoto(file){
+  toast("Saving photo…");
+  const dataUrl=await resizeImage(file);
+  let finalUrl=dataUrl;
+  if(CONFIG.BACKEND_URL){
+    const res=await backend("photo",{date:dateStr, meal:PLAN[viewKey][pendingMeal].m, dataUrl});
+    if(res&&res.url) finalUrl=res.url;
+  }
+  const day=curDay(); day.meals[pendingMeal]=day.meals[pendingMeal]||{};
+  day.meals[pendingMeal].photos=day.meals[pendingMeal].photos||[];
+  day.meals[pendingMeal].photos.push(finalUrl);
+  logEvent("photo", PLAN[viewKey][pendingMeal].m, finalUrl);
+  persist(); renderRicha(); toast("📷 Photo added");
+}
+
+/* ---------- extra food modal ---------- */
+let extraMeal=null, pickedFood=null;
+function openExtra(mi){
+  extraMeal=mi; pickedFood=null;
+  $("#exName").value=""; $("#exQty").value="1"; $("#exUnit").value="serv";
+  $("#exPer100").value=""; $("#exEst").style.display="none"; $("#per100wrap").style.display="none";
+  const ql=$("#quickFoods"); ql.innerHTML="";
+  FOOD_DB.forEach((f,idx)=>{
+    const b=document.createElement("div"); b.className="qf"; b.textContent=f.n;
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#quickFoods .qf").forEach(x=>x.classList.remove("sel"));
+      b.classList.add("sel"); pickedFood=f; $("#exName").value=f.n;
+      $("#exUnit").value=f.unit; $("#per100wrap").style.display=f.unit==="g"?"block":"none";
+      if(f.unit==="g"&&f.per100) $("#exPer100").value=f.per100;
+      calcExtra();
+    });
+    ql.appendChild(b);
+  });
+  $("#extraOvl").classList.add("on");
+}
+function calcExtra(){
+  const qty=parseFloat($("#exQty").value)||0;
+  const unit=$("#exUnit").value;
+  let protein=0;
+  if(unit==="g"){ const per=parseFloat($("#exPer100").value)|| (pickedFood&&pickedFood.per100) ||0; protein=qty*per/100; }
+  else if(pickedFood && pickedFood.unit===unit){ protein=qty*pickedFood.p; }
+  else if(pickedFood && pickedFood.p){ protein=qty*pickedFood.p; }
+  else { protein=0; }
+  const est=$("#exEst");
+  if(protein>0){ est.style.display="block"; est.textContent="≈ "+protein.toFixed(1)+"g protein"; }
+  else { est.style.display="none"; }
+  return protein;
+}
+$("#exUnit").addEventListener("change",()=>{ $("#per100wrap").style.display=$("#exUnit").value==="g"?"block":"none"; calcExtra(); });
+["exQty","exPer100"].forEach(id=>$("#"+id).addEventListener("input",calcExtra));
+$("#exName").addEventListener("input",()=>{ if(!FOOD_DB.find(f=>f.n===$("#exName").value)) pickedFood=null; });
+$("#exCancel").addEventListener("click",()=>$("#extraOvl").classList.remove("on"));
+$("#exAdd").addEventListener("click",()=>{
+  const name=$("#exName").value.trim()||"Extra food";
+  let p=calcExtra();
+  if(p<=0){ // manual fallback: treat per100 field as grams of protein if entered, else ask
+    const manual=parseFloat($("#exPer100").value);
+    if($("#exUnit").value!=="g" && !pickedFood && manual>0) p=manual; // user typed protein directly
+  }
+  if(p<=0){ toast("Add a quantity so we can count protein"); return; }
+  const day=curDay(); const k="m"+extraMeal;
+  day.extras[k]=day.extras[k]||[]; day.extras[k].push({n:name,p:+p.toFixed(1)});
+  logEvent("extra", name+" (+"+p.toFixed(1)+"g)");
+  persist(); $("#extraOvl").classList.remove("on"); renderRicha();
+  toast("Added "+name+" · +"+p.toFixed(1)+"g");
+});
+
+/* ---------- add medicine (admin) ---------- */
+function openMed(){ $("#mName").value=""; $("#mTime").value="09:00"; $("#mNote").value=""; $("#medOvl").classList.add("on"); }
+$("#mCancel").addEventListener("click",()=>$("#medOvl").classList.remove("on"));
+$("#mAdd").addEventListener("click",()=>{
+  const name=$("#mName").value.trim(); if(!name){ toast("Enter a name"); return; }
+  const id="custom_"+Date.now();
+  MEDS.push({id,name,icon:"💊",time:$("#mTime").value||"09:00",note:$("#mNote").value||"Once daily",freq:"daily"});
+  saveMeds(); $("#medOvl").classList.remove("on"); render(); toast("Added "+name);
+});
+function saveMeds(){ try{ localStorage.setItem("richacare:meds", JSON.stringify(MEDS)); }catch(e){}
+  if(CONFIG.BACKEND_URL) backend("meds",{meds:MEDS}); }
+function loadMeds(){ try{ const r=localStorage.getItem("richacare:meds"); if(r) MEDS=JSON.parse(r); }catch(e){} }
+
+/* ============================================================
+   REMINDERS  (in-app + Notifications while app is open)
+   ============================================================ */
+async function askNotify(){
+  if(!("Notification" in window)) return;
+  if(Notification.permission==="default"){ try{ await Notification.requestPermission(); }catch(e){} }
+}
+function notify(title, body, tag){
+  if(("Notification" in window) && Notification.permission==="granted"){
+    try{ new Notification(title,{body,tag,renotify:true}); return; }catch(e){}
+  }
+  toast(title+" — "+body);
+}
+function reminderTick(){
+  if(isAdmin || dayOffset!==0) return;
+  const now=Date.now(), n=nowMin();
+  // meals
+  (PLAN[viewKey]||[]).forEach((meal,mi)=>{
+    if(mealStatus(mi)==="done") return;
+    if(n>=hm(meal.t)){
+      const id="meal"+mi;
+      if(!notifiedAt[id] || now-notifiedAt[id]>=CONFIG.RENUDGE_MIN*60000){
+        notifiedAt[id]=now;
+        notify("🍽️ "+meal.m+" time", "Tap to mark what you've eaten.", id);
+      }
+    }
+  });
+  // meds
+  MEDS.filter(medVisibleToday).forEach(med=>{
+    if(medDone(med.id)) return;
+    if(n>=hm(med.time)){
+      const id="med_"+med.id;
+      if(!notifiedAt[id] || now-notifiedAt[id]>=CONFIG.RENUDGE_MIN*60000){
+        notifiedAt[id]=now;
+        notify("💊 "+med.name, med.note+" — tap to mark as taken.", id);
+      }
+    }
+  });
+}
+
+/* ============================================================
+   MISC
+   ============================================================ */
+let toastT=null;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),2600); }
+function haptic(){ if(navigator.vibrate) try{navigator.vibrate(12);}catch(e){} }
+
+/* day navigation */
+$("#dPrev").addEventListener("click",()=>{ if(dayOffset>-1){ dayOffset--; switchDay(); } });
+$("#dNext").addEventListener("click",()=>{ if(dayOffset<6){ dayOffset++; switchDay(); } });
+async function switchDay(){ setupDate(); await pullToday(); render(); }
+
+function setupDate(){
+  const d=dateFor(dayOffset);
+  dateStr=ymd(d); viewKey=dayKeyOf(d);
+  todayKey=dayKeyOf(new Date());
+}
+function render(){ if(isAdmin) renderAdmin(); else renderRicha(); }
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+async function boot(){
+  $("#offline").classList.toggle("on", !CONFIG.BACKEND_URL);
+  document.title = isAdmin ? "Richa Care · Partner" : "Richa Care";
+  $("#docnote").textContent = isAdmin
+    ? "Live view of Richa's day. Confirm any plan changes with Dr. Preety Aggarwal."
+    : "Follow the plan, mark each meal, and take your medicines on time 💛  Reviewed at your 17 Jul check-up.";
+  loadMeds();
+  setupDate();
+  await pullToday();
+  render();
+  if(!isAdmin){ await askNotify(); }
+  // timers
+  setInterval(reminderTick, 30000); reminderTick();
+  if(isAdmin){
+    setInterval(async()=>{ await pullToday(); renderAdmin(); }, CONFIG.POLL_MS);
+  } else if(CONFIG.BACKEND_URL){
+    // light refresh to keep multi-device in sync
+    setInterval(async()=>{ if(document.visibilityState==="visible"){ /* keep local authoritative for Richa */ } }, 60000);
+  }
+  // re-render across midnight / minute ticks so statuses update
+  setInterval(()=>{ if(dayOffset===0) render(); }, 60000);
+}
+
+/* service worker (for install) */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("service-worker.js").catch(()=>{});
+}
+
+boot();
+</script>
+</body>
+</html>
