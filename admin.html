@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Richa Care">
+<meta name="apple-mobile-web-app-title" content="Richa Admin">
 <meta name="theme-color" content="#FAF9F6">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest-admin.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Richa Care</title>
+<title>Richa Admin</title>
 <style>
   :root{
     --bg:#FAF9F6; --surface:#FFFFFF; --ink:#1A1A1A; --ink2:#6E6A62; --ink3:#9C978D;
@@ -408,7 +408,7 @@ const FOOD_DB = [
 /* ============================================================
    STATE  (per-date)
    ============================================================ */
-const isAdmin = new URLSearchParams(location.search).get("mode")==="admin";
+const isAdmin = true; /* dedicated admin page */
 let viewKey, todayKey, dateStr;          // YYYY-MM-DD for the date being viewed / today
 let dayOffset = 0;                       // 0 = today, -n preview past, +n preview future
 let STATE = {};                          // STATE[dateStr] = {meals:{}, meds:{}, extras:{}}

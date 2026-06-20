@@ -1,9 +1,12 @@
 /* Richa Care — service worker (offline shell + install) */
-const CACHE = "richacare-v1";
+const CACHE = "richacare-v2";
 const ASSETS = [
   "./",
   "./index.html",
+  "./admin.html",
   "./manifest.json",
+  "./manifest-admin.json",
+  "./service-worker.js",
   "./icon-192.png",
   "./icon-512.png",
   "./icon-180.png"
