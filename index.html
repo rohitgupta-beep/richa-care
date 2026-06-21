@@ -462,7 +462,8 @@ async function backend(action, payload){
   }
   if(action==="photo"){
     try{
-      await fetch(base,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({action},payload)),keepalive:true});
+      // plain POST (no keepalive — that flag caps the body at 64KB and breaks photo uploads)
+      await fetch(base,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({action},payload))});
     }catch(e){ console.warn("photo post",e); }
     return {ok:true};
   }
@@ -787,7 +788,7 @@ function pickPhoto(mi){
   inp.onchange=async()=>{ if(inp.files&&inp.files[0]) await handlePhoto(inp.files[0]); };
   inp.click();
 }
-function resizeImage(file,max=900,q=0.55){
+function resizeImage(file,max=820,q=0.5){
   return new Promise(res=>{
     const img=new Image(), rd=new FileReader();
     rd.onload=()=>{ img.onload=()=>{

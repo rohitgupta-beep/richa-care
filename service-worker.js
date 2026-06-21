@@ -1,5 +1,5 @@
 /* Richa Care — service worker (offline shell + install) */
-const CACHE = "richacare-v3";
+const CACHE = "richacare-v4";
 const ASSETS = [
   "./",
   "./index.html",
