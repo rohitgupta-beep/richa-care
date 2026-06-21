@@ -444,21 +444,36 @@ function jsonpGet(url){
 }
 async function backend(action, payload){
   if(!CONFIG.BACKEND_URL) return null;
+  const base=CONFIG.BACKEND_URL, q=encodeURIComponent;
+  // All small reads AND writes go over the script-tag (JSONP/GET) channel, which
+  // works cross-origin from GitHub Pages. Only photo upload (large) uses POST.
   if(action==="get"){
-    const u=CONFIG.BACKEND_URL+"?action=get&date="+encodeURIComponent(payload.date)+"&t="+Date.now();
-    return await jsonpGet(u);     // JSONP read (no CORS issue)
+    return await jsonpGet(base+"?action=get&date="+q(payload.date)+"&t="+Date.now());
   }
-  try{
-    // writes: simple text/plain POST (no preflight). Response read may be CORS-blocked,
-    // but the write still lands on the server, so we don't depend on the response.
-    await fetch(CONFIG.BACKEND_URL, {
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify(Object.assign({action}, payload)),
-      keepalive:true
-    });
-  }catch(e){ console.warn("backend write",action,e); }
+  if(action==="save"){
+    return await jsonpGet(base+"?action=save&date="+q(payload.date)+"&state="+q(JSON.stringify(payload.state||{}))+"&t="+Date.now());
+  }
+  if(action==="log"){
+    const p=payload;
+    return await jsonpGet(base+"?action=log&ts="+(p.ts||Date.now())+"&date="+q(p.date||"")+"&type="+q(p.type||"")+"&detail="+q(p.detail||"")+"&photoUrl="+q(p.photoUrl||"")+"&t="+Date.now());
+  }
+  if(action==="meds"){
+    return await jsonpGet(base+"?action=meds&meds="+q(JSON.stringify(payload.meds||[]))+"&t="+Date.now());
+  }
+  if(action==="photo"){
+    try{
+      await fetch(base,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({action},payload)),keepalive:true});
+    }catch(e){ console.warn("photo post",e); }
+    return {ok:true};
+  }
   return {ok:true};
+}
+// lightweight state for sync: strip large base64 photos (they go to Drive via POST)
+function syncState(){
+  const s=STATE[dateStr]||blankDay();
+  const c=JSON.parse(JSON.stringify(s));
+  if(c.meals) Object.values(c.meals).forEach(m=>{ if(m&&m.photos) delete m.photos; });
+  return c;
 }
 
 let saveTimer=null;
@@ -466,7 +481,7 @@ function persist(){
   saveLocal();
   if(!CONFIG.BACKEND_URL) return;
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{ backend("save",{date:dateStr, state:STATE[dateStr]}); }, 400);
+  saveTimer=setTimeout(()=>{ backend("save",{date:dateStr, state:syncState()}); }, 400);
 }
 function logEvent(type, detail, photoUrl){
   const ev={ts:Date.now(), date:dateStr, type, detail, photoUrl:photoUrl||""};
@@ -474,14 +489,9 @@ function logEvent(type, detail, photoUrl){
 }
 
 async function pullToday(){
-  if(CONFIG.BACKEND_URL){
+  if(CONFIG.BACKEND_URL && isAdmin){
     const res = await backend("get",{date:dateStr});
-    if(res){
-      STATE[dateStr] = res.state || STATE[dateStr] || blankDay();
-      LOGS = res.logs || [];
-      saveLocal();
-      return;
-    }
+    if(res){ STATE[dateStr] = res.state || blankDay(); LOGS = res.logs || []; return; }
   }
   STATE[dateStr] = loadLocal(dateStr) || STATE[dateStr] || blankDay();
 }

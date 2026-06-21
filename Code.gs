@@ -36,6 +36,14 @@ function doGet(e){
   if(action==="get"){
     return out_({ ok:true, state:readState_(p.date), logs:readLogs_(p.date), meds:readMeds_() }, callback);
   }
+  // small writes also accepted over GET (so they work cross-origin from GitHub Pages)
+  const lock=LockService.getScriptLock();
+  try{ lock.waitLock(8000); }catch(err){}
+  try{
+    if(action==="save"){ try{ writeState_(p.date, JSON.parse(p.state||"{}")); }catch(e){} return out_({ok:true},callback); }
+    if(action==="log"){ appendLog_({ ts:Number(p.ts)||Date.now(), date:p.date, type:p.type, detail:p.detail, photoUrl:p.photoUrl }); return out_({ok:true},callback); }
+    if(action==="meds"){ try{ writeMeds_(JSON.parse(p.meds||"[]")); }catch(e){} return out_({ok:true},callback); }
+  } finally { try{ lock.releaseLock(); }catch(err){} }
   return out_({ ok:false, error:"unknown action" }, callback);
 }
 
